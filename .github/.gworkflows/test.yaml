@@ -1,0 +1,55 @@
+Конечно! Вот обновленная и актуализированная версия вашего файла GitHub Actions с исправлениями и улучшениями:
+
+```yaml
+name: Test
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests and generate Allure results
+        run: |
+          pytest --alluredir=allure-results
+
+      - name: Get Allure history from previous report
+        if: always()
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Upload Allure results and history
+        if: always()
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: allure-results
+          allure_history: gh-pages/allure-history
+          keep_reports: 20
+
+      - name: Deploy report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          publish_dir: allure-report
+          publish_branch: gh-pages
+          user_name: RMX
