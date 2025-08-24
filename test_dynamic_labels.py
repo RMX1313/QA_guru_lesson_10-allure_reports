@@ -42,7 +42,7 @@ def test_issues_find():
 
     # Исправленные селекторы для GitHub
     # Вместо кнопки используем поле поиска напрямую
-    s("[data-test-selector='nav-search-input']").type("eroshenkoam/allure-example").press_enter()
+    s(".header-search-button").type("eroshenkoam/allure-example").press_enter()
 
     # Ищем репозиторий в результатах поиска
     s(by.link_text("eroshenkoam/allure-example")).click()
