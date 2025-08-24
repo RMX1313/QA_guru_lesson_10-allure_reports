@@ -4,12 +4,25 @@ from selene import browser, by
 from selene.support.shared.jquery_style import s
 import tempfile
 import uuid
+import pytest
 
-# Создание уникальной временной директории
-temp_dir = f"/tmp/selenium_{uuid.uuid4().hex[:8]}"
-browser.config.driver_options.add_argument(f'--user-data-dir={temp_dir}')
-browser.config.driver_options.add_argument('--no-sandbox')
-browser.config.driver_options.add_argument('--disable-dev-shm-usage')
+
+# Фикстура для настройки браузера
+@pytest.fixture(scope='function', autouse=True)
+def setup_browser():
+    # Создание уникальной временной директории для пользовательских данных
+    temp_dir = tempfile.mkdtemp(prefix='selenium_')
+
+    # Настройка опций драйвера
+    browser.config.driver_options.add_argument(f'--user-data-dir={temp_dir}')
+    browser.config.driver_options.add_argument('--no-sandbox')
+    browser.config.driver_options.add_argument('--disable-dev-shm-usage')
+    browser.config.driver_options.add_argument('--headless')  # Для CI/CD
+
+    yield  # Здесь выполняется тест
+
+    # Закрытие браузера после теста
+    browser.quit()
 
 
 def test_issues_find():
@@ -30,5 +43,7 @@ def test_issues_find():
     s(by.link_text("eroshenkoam/allure-example")).click()
     s("#issues-tab").click()
 
-    # Закрытие браузера после теста
-    browser.quit()
+    # Проверка результатов
+    s(by.partial_text("#")).should(be.visible)
+
+
