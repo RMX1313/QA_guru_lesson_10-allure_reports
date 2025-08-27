@@ -1,43 +1,42 @@
-
-name: Test
+name: Тестирование и публикация
 
 on:
   push:
     branches:
-      - "master"
+      - "master"  # запускать при пуше в ветку master
 
 jobs:
   test:
-    name: Test
+    name: Тестирование
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Проверка репозитория
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.x
+      - name: Установка Python 3.x
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Install Chrome
-        run: sudo apt-get install google-chrome-stable
+      - name: Установка Chrome
+        run: sudo apt-get install -y google-chrome-stable
 
-      - name: Install dependencies
+      - name: Установка зависимостей
         run: |
           pip install -r requirements.txt
 
-      - name: Run tests and generate Allure results
+      - name: Запуск тестов и генерация результатов Allure
         run: |
           pytest --alluredir=allure-results
 
-      - name: Get Allure history from previous report
+      - name: Получение истории Allure из предыдущего отчёта
         if: always()
         uses: actions/checkout@v3
         with:
-          ref: gh-pages
+          ref: gh-pages  # ветка с предыдущими результатами
           path: gh-pages
 
-      - name: Upload Allure results and history
+      - name: Загрузка результатов Allure и истории
         if: always()
         uses: simple-elf/allure-report-action@master
         with:
@@ -45,8 +44,8 @@ jobs:
           allure_history: gh-pages/allure-history
           keep_reports: 20
 
-      - name: Deploy
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      publish_dir: ./public
+      - name: Развертывание отчёта на GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public  # папка, которую нужно опубликовать (убедитесь, что там есть ваш отчёт)
